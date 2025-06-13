@@ -1,0 +1,98 @@
+# Connecting to CoinMarketCap API
+from requests import Request, Session
+from requests.exceptions import ConnectionError, Timeout, TooManyRedirects
+import json
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from datetime import datetime
+
+# API setup
+url = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest'
+parameters = {
+    'start': '1',
+    'limit': '10',
+    'convert': 'USD'
+}
+headers = {
+    'Accepts': 'application/json',
+    'X-CMC_PRO_API_KEY': 'your_api_key_here',  # 🔒 Replace with your actual API key or use environment variables
+}
+
+# Session
+session = Session()
+session.headers.update(headers)
+
+# Fetch data
+try:
+    response = session.get(url, params=parameters)
+    data = json.loads(response.text)
+except (ConnectionError, Timeout, TooManyRedirects) as e:
+    print(e)
+
+# DataFrame
+df = pd.json_normalize(data['data'])
+df.info()
+
+# Change Percentage by Time - 1h
+plt.figure(figsize=(12, 6))
+sns.catplot(x=df['name'], y=df['quote.USD.percent_change_1h'])
+plt.title('Change Percentage by 1h')
+plt.xlabel('Name')
+plt.ylabel('Change Percentage')
+plt.xticks(rotation=45)
+plt.tight_layout()
+
+# Change Percentage by Time - 24h
+plt.figure(figsize=(12, 6))
+sns.catplot(x=df['name'], y=df['quote.USD.percent_change_24h'])
+plt.title('Change Percentage by 24h')
+plt.xlabel('Name')
+plt.ylabel('Change Percentage')
+plt.xticks(rotation=45)
+plt.tight_layout()
+
+# Change Percentage by Time - 30d
+plt.figure(figsize=(12, 6))
+sns.catplot(x=df['name'], y=df['quote.USD.percent_change_30d'])
+plt.title('Change Percentage by 30d')
+plt.xlabel('Name')
+plt.ylabel('Percent Change')
+plt.xticks(rotation=45)
+plt.tight_layout()
+
+# Top Crypto Market Pair
+plt.figure(figsize=(12, 6))
+sns.barplot(x=df['name'], y=df['num_market_pairs'])
+plt.title('Crypto Market Pair')
+plt.xlabel('Name')
+plt.tight_layout()
+
+# Add timestamp
+df['Pulled_At'] = datetime.now()
+
+# Correlation: Market Pairs vs Market Cap
+corr = df[['num_market_pairs', 'quote.USD.market_cap']].corr()
+plt.figure(figsize=(10, 6))
+sns.heatmap(corr, annot=True, cmap='coolwarm', fmt='.2f')
+plt.title("Correlation Heatmap (Market Pairs vs Market Cap)")
+plt.tight_layout()
+pd.set_option('display.max_columns', None)
+
+# Top cryptos by 24h trading volume
+top_volume = df.sort_values(by='quote.USD.volume_24h', ascending=False)
+plt.figure(figsize=(12, 6))
+sns.barplot(x=top_volume['quote.USD.volume_24h'].values, y=top_volume['name'])
+plt.title('Top Cryptos by 24h Trading Volume')
+plt.xlabel('24h Volume (USD)')
+plt.ylabel('Name')
+plt.tight_layout()
+
+# Market Dominance
+market_dominance = df.sort_values(by='quote.USD.market_cap_dominance', ascending=False)
+plt.figure(figsize=(12, 6))
+sns.barplot(x=market_dominance['quote.USD.market_cap_dominance'].values, y=market_dominance['name'])
+plt.title('Cryptocurrency Market Dominance')
+plt.xlabel('Market Dominance')
+plt.ylabel('Name')
+plt.tight_layout()
