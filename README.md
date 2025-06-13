@@ -42,7 +42,7 @@ This chart reflects longer-term trends. Cryptocurrencies like **Dogecoin** and *
 
 ![image](https://github.com/user-attachments/assets/6845e340-6e46-4ca1-bfa2-0aee860f7e4d)
 
-🕒 **Note**: These observations are based on the top 10 cryptocurrencies by market cap as of **2025-06-12 13:20:17**. This is a limited snapshot and should **not be generalized to the entire market.**
+🕒 **Note**: These observations are based on the top 10 cryptocurrencies by market cap as of **2025-06-13**. This is a limited snapshot and should **not be generalized to the entire market.**
 
 **2. 🔁 Number of Market Pairs per Cryptocurrency**
 
